@@ -12,9 +12,11 @@ today = date.today()
 oneday = datetime.timedelta(days=1)
 yesterday = today - oneday
 third = today - oneday - oneday
+four = today - oneday - oneday
 a = str(today)
 b = str(yesterday)
 c = str(third)
+d = str(four)
 
 
 
@@ -32,7 +34,20 @@ def draw_matrix(array):
     for x in range(16):
         for y in range(32):
             if array[x][y] == 1:
-                LMD.set_pixel(x,y,4)
+                LMD.set_pixel(x,y,4) #BLUE
+            elif array[x][y] == 2:
+                LMD.set_pixel(x,y,2) #GREEN
+            elif array[x][y] == 3:
+                LMD.set_pixel(x,y,3) #YELLOW
+            elif array[x][y] == 4:
+                LMD.set_pixel(x,y,1) #RED
+            elif array[x][y] == 5:
+                LMD.set_pixel(x,y,5) #PINK
+            elif array[x][y] == 6:
+                LMD.set_pixel(x,y,6) #CYAN
+            elif array[x][y] == 7:
+                LMD.set_pixel(x,y,7) #WHITE
+
             elif array[x][y] == 0:
                 LMD.set_pixel(x,y,0)
             else:
@@ -213,7 +228,113 @@ def today_date_print(array):
 
 ####################################################################################
 
+################################YESTERDAY###################################################
+def yesterday_compare_data(js_file1, js_file2, search_region ,confirmed_cmp, array):
+    with open(js_file1, "r", encoding="utf-8") as f1:
+        with open(js_file2, "r", encoding="utf-8") as f2:
+            json_data_1 = json.load(f1)
+            json_data_2 = json.load(f2)
+            for i in range(0, len(json_data_1) - 1):
+                region = json_data_1[i]['지역이름']
+                confirmed_1 = json_data_1[i]['확진자수']
+                confirmed_2 = json_data_2[i]['확진자수']
+                cmp_data = confirmed_1 - confirmed_2
 
+                confirmed_cmp.append({
+                    '지역이름' : region,
+                    '전날비교' : cmp_data
+                 })
+            for i in range(0,len(confirmed_cmp)):
+                if (confirmed_cmp[i]['지역이름']) == search_region:
+                    list = [int(i) for i in str(confirmed_cmp[i]['전날비교'])]
+                    for j in range(0,len(list)):
+                        for x in range(6,11):
+                            for y in range(22+4*j, 26+4*j):
+                                array[x][y] = number_array[list[j]][x-6][y-22-4*j]
+                    for x in range(6,11):
+                        for y in range(21+4*len(list),21+4*len(list)+3):
+                            array[x][y] = arrow_array[0][x-6][y-21-4*len(list)]
+            return confirmed_cmp
+
+# 지역별 확진자 수 검색 함수 (LED구현)
+def yesterday_search_count(js_file,search_region,array):
+    with open (js_file,"r",encoding="utf-8") as f:
+        json_data = json.load(f)
+        for i in range(0,len(json_data)-1):
+            if (json_data[i]['지역이름']) == search_region:
+                print(json_data[i]['확진자수'])
+                list =[int(i) for i in str(json_data[i]['확진자수'])]
+                for j in range(0,len(list)):
+                    for x in range(6,11):
+                        for y in range(10+4*j,13+4*j):
+                            array[x][y] = number_array[list[j]][x-6][y-4*j-10]
+
+def yesterday_date_print(array):
+    b_list = b[8:10]
+    list = [int(i) for i in str(b_list)]
+    for j in range(0,len(list)):
+        for x in range(6,11):
+            for y in range(0+4*j,4+4*j):
+                array[x][y] = number_array[list[j]][x-6][y-4*j]
+    for j in range(1):
+        for x in range(6,11):
+            for y in range(8,10):
+                array[x][y] = comma_array[0][x-6][y-8]
+
+
+################################BEFORE_YESTERDAY###################################
+
+def b_yesterday_compare_data(js_file1, js_file2, search_region ,confirmed_cmp, array):
+    with open(js_file1, "r", encoding="utf-8") as f1:
+        with open(js_file2, "r", encoding="utf-8") as f2:
+            json_data_1 = json.load(f1)
+            json_data_2 = json.load(f2)
+            for i in range(0, len(json_data_1) - 1):
+                region = json_data_1[i]['지역이름']
+                confirmed_1 = json_data_1[i]['확진자수']
+                confirmed_2 = json_data_2[i]['확진자수']
+                cmp_data = confirmed_1 - confirmed_2
+
+                confirmed_cmp.append({
+                    '지역이름' : region,
+                    '전날비교' : cmp_data
+                 })
+            for i in range(0,len(confirmed_cmp)):
+                if (confirmed_cmp[i]['지역이름']) == search_region:
+                    list = [int(i) for i in str(confirmed_cmp[i]['전날비교'])]
+                    for j in range(0,len(list)):
+                        for x in range(11,16):
+                            for y in range(22+4*j, 26+4*j):
+                                array[x][y] = number_array[list[j]][x-11][y-22-4*j]
+                    for x in range(11,16):
+                        for y in range(21+4*len(list),21+4*len(list)+3):
+                            array[x][y] = arrow_array[0][x-11][y-21-4*len(list)]
+            return confirmed_cmp
+
+# 지역별 확진자 수 검색 함수 (LED구현)
+def b_yesterday_search_count(js_file,search_region,array):
+    with open (js_file,"r",encoding="utf-8") as f:
+        json_data = json.load(f)
+        for i in range(0,len(json_data)-1):
+            if (json_data[i]['지역이름']) == search_region:
+                print(json_data[i]['확진자수'])
+                list =[int(i) for i in str(json_data[i]['확진자수'])]
+                for j in range(0,len(list)):
+                    for x in range(11,16):
+                        for y in range(10+4*j,13+4*j):
+                            array[x][y] = number_array[list[j]][x-11][y-4*j-10]
+
+def b_yesterday_date_print(array):
+    c_list = c[8:10]
+    list = [int(i) for i in str(c_list)]
+    for j in range(0,len(list)):
+        for x in range(11,16):
+            for y in range(0+4*j,4+4*j):
+                array[x][y] = number_array[list[j]][x-11][y-4*j]
+    for j in range(1):
+        for x in range(11,16):
+            for y in range(8,10):
+                array[x][y] = comma_array[0][x-11][y-8]
 
 
 def main_UI(array):
@@ -274,12 +395,33 @@ while(menu):
     while menu_choice == 2: # 서울 세부지역 확진자 수 검색
         js_file = 'koreaData_Seoul'+ '_' + a + '.js'
         js_file_yesterday = 'koreaData_Seoul'+ '_' + b + '.js'
+        js_file_b_yesterday = 'koreaData_Seoul'+ '_' + c + '.js'
+        js_file_b_b_yesterday = 'koreaData_Seoul'+ '_' + d + '.js'
         search_region = input("지역을 입력하세요 (ex:종로구): ")
         clear_array(array_screen)
         draw_matrix(array_screen);print()
         today_date_print(array_screen)
         today_search_count(js_file,search_region,array_screen)
+        for x in range(5):
+            for y in range(22):
+                if array_screen[x][y] == 1:
+                    array_screen[x][y] += 4
         today_compare_data(js_file, js_file_yesterday, search_region, compare_cmp, array_screen)
+        yesterday_date_print(array_screen)
+        yesterday_search_count(js_file_yesterday,search_region,array_screen)
+        for x in range(6,11):
+            for y in range(22):
+                if array_screen[x][y] == 1:
+                    array_screen[x][y] += 5
+        yesterday_compare_data(js_file_yesterday, js_file_b_yesterday, search_region, compare_cmp, array_screen)
+        b_yesterday_date_print(array_screen)
+        b_yesterday_search_count(js_file_b_yesterday,search_region,array_screen)
+        for x in range(11,16):
+            for y in range(22):
+                if array_screen[x][y] == 1:
+                    array_screen[x][y] += 6
+        b_yesterday_compare_data(js_file_b_yesterday, js_file_b_b_yesterday, search_region, compare_cmp, array_screen)
+
         draw_matrix(array_screen);print()
         if search_region == '0': # 0을 입력하면 메뉴로 복귀
             compare_cmp = []
@@ -289,12 +431,20 @@ while(menu):
     while menu_choice == 3: # 경기 세부지역 확진자 수 검색
         js_file = 'koreaData_Gyeonggi'+ '_'+ a + '.js'
         js_file_yesterday = 'koreaData_Gyeonggi'+ '_'+ b + '.js'
+        js_file_b_yesterday = 'koreaData_Gyeonggi'+ '_' + c + '.js'
+        js_file_b_b_yesterday = 'koreaData_Gyeonggi'+ '_' + d + '.js'
         search_region = input("지역을 입력하세요 (ex:수원): ")
         clear_array(array_screen)
         draw_matrix(array_screen);print()
         today_date_print(array_screen)
         today_search_count(js_file,search_region,array_screen)
         today_compare_data(js_file, js_file_yesterday, search_region, compare_cmp, array_screen)
+        yesterday_date_print(array_screen)
+        yesterday_search_count(js_file_yesterday,search_region,array_screen)
+        yesterday_compare_data(js_file_yesterday, js_file_b_yesterday, search_region, compare_cmp, array_screen)
+        b_yesterday_date_print(array_screen)
+        b_yesterday_search_count(js_file_b_yesterday,search_region,array_screen)
+        b_yesterday_compare_data(js_file_b_yesterday, js_file_b_b_yesterday, search_region, compare_cmp, array_screen)
         draw_matrix(array_screen);print()
         if search_region == '0': # 0을 입력하면 메뉴로 복귀
             compare_cmp = []
